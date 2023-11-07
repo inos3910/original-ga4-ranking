@@ -10,7 +10,9 @@
  * Version: 1.0
  */
 
-class Original_GA4_Ranking
+namespace Original\Ga4\Ranking;
+
+class Ga4RankingPlugin
 {
   public function __construct()
   {
@@ -118,13 +120,13 @@ class Original_GA4_Ranking
   }
 
   //ランキング取得関数
-  public static function get_ranking_data()
+  public static function get_ranking_data($limit = 1000)
   {
 
     require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
     //Transient cache
-    $transient_name = 'original_ga4_ranking_data';
+    $transient_name = "original_ga4_ranking_data_{$limit}";
     $rank_data      = get_transient($transient_name);
 
     //キャッシュありの場合
@@ -147,44 +149,44 @@ class Original_GA4_Ranking
     $credentials = json_decode($json, true);
 
     try {
-      $client = new Google\Analytics\Data\V1beta\BetaAnalyticsDataClient([
+      $client = new \Google\Analytics\Data\V1beta\BetaAnalyticsDataClient([
         'credentials' => $credentials,
       ]);
 
       // API取得処理
       $response = $client->runReport([
         'property'   => 'properties/' . $property_id,
-        'limit'      => 1000,
+        'limit'      => $limit,
         'dateRanges' => [
-          new Google\Analytics\Data\V1beta\DateRange([
+          new \Google\Analytics\Data\V1beta\DateRange([
             'start_date' => '30daysAgo',
             'end_date' => 'yesterday',
           ]),
         ],
         'dimensions' => [
-          new Google\Analytics\Data\V1beta\Dimension([
+          new \Google\Analytics\Data\V1beta\Dimension([
             'name' => 'pagePath',
           ]),
         ],
         'dimensionFilter' =>
-        !empty($dimension_filter_dir) ? new Google\Analytics\Data\V1beta\FilterExpression([
-          'filter' => new Google\Analytics\Data\V1beta\Filter([
+        !empty($dimension_filter_dir) ? new \Google\Analytics\Data\V1beta\FilterExpression([
+          'filter' => new \Google\Analytics\Data\V1beta\Filter([
             'field_name' => 'pagePath',
-            'string_filter' => new Google\Analytics\Data\V1beta\Filter\StringFilter([
-              'match_type' => Google\Analytics\Data\V1beta\Filter\StringFilter\MatchType::PARTIAL_REGEXP,
+            'string_filter' => new \Google\Analytics\Data\V1beta\Filter\StringFilter([
+              'match_type' => \Google\Analytics\Data\V1beta\Filter\StringFilter\MatchType::PARTIAL_REGEXP,
               'value' => $dimension_filter_dir . '[^\?]+'
             ]),
           ]),
         ]) : [],
         'metrics' => [
-          new Google\Analytics\Data\V1beta\Metric([
+          new \Google\Analytics\Data\V1beta\Metric([
             'name' => 'screenPageViews',
           ]),
         ],
       ]);
     }
     //例外処理
-    catch (Google\ApiCore\ApiException $e) {
+    catch (\Google\ApiCore\ApiException $e) {
       return $rank_data;
     } finally {
       if (empty($response)) {
@@ -222,4 +224,4 @@ class Original_GA4_Ranking
   }
 }
 
-new Original_GA4_Ranking();
+new Ga4RankingPlugin();

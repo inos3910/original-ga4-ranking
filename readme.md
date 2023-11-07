@@ -37,13 +37,18 @@ PHP7 で動かしたい場合は composer.json で php のバージョンを指�
 
 ```
 <?php
-if (!class_exists('Original_GA4_Ranking')) {
+use Original\Ga4\Ranking\Ga4RankingPlugin;
+
+
+if (!class_exists('Original\Ga4\Ranking\Ga4RankingPlugin')) {
   return;
 }
 
-//10件表示する例
+//10件表示する
 $limit = 10;
-$popular_query = Original_GA4_Ranking::get_ranking_data();
+
+//ランキング取得（引数に記事数を入れる）
+$popular_query = Ga4RankingPlugin::get_ranking_data($limit);
 if (empty($popular_query)) {
   return;
 }
@@ -68,11 +73,5 @@ foreach ((array)$popular_query as $article) :
   var_dump($article['url']);
   //ページのパス
   var_dump($article['page_path']);
-
-  //表示上限処理
-  --$limit;
-  if ($limit < 1) {
-    break;
-  }
 endforeach;
 ```
