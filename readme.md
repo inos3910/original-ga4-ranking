@@ -75,3 +75,10 @@ foreach ((array)$popular_query as $article) :
   var_dump($article['page_path']);
 endforeach;
 ```
+
+##参考 URL
+
+サービスアカウントの取得方法は下記でわかりやすく解説されていたものを勉強させていただきました。
+
+- https://tech.excite.co.jp/entry/2023/04/11/104500
+- https://twinkangaroos.com/how-to-run-google-analytics-data-api-ga4-with-php.html
