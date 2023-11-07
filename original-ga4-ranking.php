@@ -2,7 +2,8 @@
 
 /**
  * Plugin Name: Original GA4 Ranking
- * Plugin URI:
+ * Plugin URI: https://github.com/inos3910/original-ga4-ranking
+ * Update URI: https://github.com/inos3910/original-ga4-ranking
  * Description: GA4人気記事ランキング取得プラグイン
  * Author: SHARESL
  * Author URI: https://sharesl.net/
