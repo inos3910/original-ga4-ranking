@@ -213,9 +213,16 @@ class Ga4RankingPlugin
           continue;
         }
 
+        //パスから投稿IDを取得
         $page_path   = $dimension_values[0]->getValue();
         $post_id     = url_to_postid($page_path);
         if (empty($post_id)) {
+          continue;
+        }
+
+        //投稿がない・もしくはステータスが公開ではない場合にはスキップ
+        $post = get_post($post_id);
+        if (empty($post) ||  $post->post_status !== 'publish') {
           continue;
         }
 
