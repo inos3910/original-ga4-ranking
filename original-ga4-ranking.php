@@ -12,6 +12,10 @@
 
 namespace Sharesl\Original\Ga4\Ranking;
 
+if (!defined('ABSPATH')) {
+  exit;
+}
+
 use \Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
 use \Google\Analytics\Data\V1beta\DateRange;
 use \Google\Analytics\Data\V1beta\Dimension;
@@ -72,68 +76,71 @@ class Ga4RankingPlugin
   public function setting_page_html()
   {
     //キャッシュクリア設定
-    $is_clear_cache = filter_input(INPUT_POST, 'clear_ga4_ranking_cache', FILTER_SANITIZE_NUMBER_INT); ?>
-    <h1>人気記事（GA4）設定</h1>
-    <?php
-    if ($is_clear_cache == 1) {
-      $cache_prefix = 'original_ga4_ranking_data_';
-      $this->delete_transient_prefix($cache_prefix);
-    ?>
-      <div class='updated notice notice-success'>
-        <p>キャッシュをクリアしました</p>
-      </div>
-    <?php
-    }
-    ?>
-    <div class="admin_optional">
-      <form method="post" action="options.php">
-        <?php settings_fields('ga4-ranking-settings-group'); ?>
-        <?php do_settings_sections('ga4-ranking-settings-group'); ?>
+    $is_clear_cache = filter_input(INPUT_POST, 'clear_ga4_ranking_cache', FILTER_SANITIZE_NUMBER_INT);
+?>
+    <div class="wrap">
+      <h1>人気記事（GA4）設定</h1>
+      <?php
+      if ($is_clear_cache == 1) {
+        $cache_prefix = 'original_ga4_ranking_data_';
+        $this->delete_transient_prefix($cache_prefix);
+      ?>
+        <div class='updated notice notice-success'>
+          <p>キャッシュをクリアしました</p>
+        </div>
+      <?php
+      }
+      ?>
+      <div class="admin_optional">
+        <form method="post" action="options.php">
+          <?php settings_fields('ga4-ranking-settings-group'); ?>
+          <?php do_settings_sections('ga4-ranking-settings-group'); ?>
+          <table class="form-table">
+            <tr>
+              <th scope="row">JSONキー</th>
+              <td>
+                <p>
+                  <textarea class="large-text code" name="ga4_ranking_credentials" cols="160" rows="7"><?php echo esc_attr(get_option('ga4_ranking_credentials')); ?></textarea>
+                </p>
+                <p class="description">GCP→サービスアカウントから取得</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">GA4プロパティID</th>
+              <td>
+                <p>
+                  <input class="regular-text code" type="text" name="ga4_ranking_property_id" value="<?php echo esc_attr(get_option('ga4_ranking_property_id')) ?>">
+                </p>
+                <p class="description">記事を取得したいGA4プロパティのID</p>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">URLフィルター</th>
+              <td>
+                <p>
+                  <input class="regular-text code" type="text" name="ga4_ranking_dimension_filter" value="<?php echo esc_attr(get_option('ga4_ranking_dimension_filter')) ?>">
+                </p>
+                <p class="description">/blog/・/article/ など記事を取得したいディレクトリを絞り込む。</p>
+              </td>
+            </tr>
+          </table>
+          <?php submit_button(); ?>
+        </form>
+        <hr>
         <table class="form-table">
           <tr>
-            <th scope="row">JSONキー</th>
+            <th scope="row">キャッシュ</th>
             <td>
-              <p>
-                <textarea class="large-text code" name="ga4_ranking_credentials" cols="160" rows="7"><?php echo esc_attr(get_option('ga4_ranking_credentials')); ?></textarea>
-              </p>
-              <p class="description">GCP→サービスアカウントから取得</p>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">GA4プロパティID</th>
-            <td>
-              <p>
-                <input class="regular-text code" type="text" name="ga4_ranking_property_id" value="<?php echo esc_attr(get_option('ga4_ranking_property_id')) ?>">
-              </p>
-              <p class="description">記事を取得したいGA4プロパティのID</p>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">URLフィルター</th>
-            <td>
-              <p>
-                <input class="regular-text code" type="text" name="ga4_ranking_dimension_filter" value="<?php echo esc_attr(get_option('ga4_ranking_dimension_filter')) ?>">
-              </p>
-              <p class="description">/blog/・/article/ など記事を取得したいディレクトリを絞り込む。</p>
+              <form method="post" action="">
+                <p>
+                  <button type="submit" class="button button-secondary" name="clear_ga4_ranking_cache" value="1">キャッシュをクリア</button>
+                </p>
+                <p class="description">キャッシュをクリアして次回表示時に最新の情報を取得します。</p>
+              </form>
             </td>
           </tr>
         </table>
-        <?php submit_button(); ?>
-      </form>
-      <hr>
-      <table class="form-table">
-        <tr>
-          <th scope="row">キャッシュ</th>
-          <td>
-            <form method="post" action="">
-              <p>
-                <button type="submit" class="button button-secondary" name="clear_ga4_ranking_cache" value="1">キャッシュをクリア</button>
-              </p>
-              <p class="description">キャッシュをクリアして次回表示時に最新の情報を取得します。</p>
-            </form>
-          </td>
-        </tr>
-      </table>
+      </div>
     </div>
 <?php
   }
