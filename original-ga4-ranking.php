@@ -12,6 +12,16 @@
 
 namespace Sharesl\Original\Ga4\Ranking;
 
+use \Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
+use \Google\Analytics\Data\V1beta\DateRange;
+use \Google\Analytics\Data\V1beta\Dimension;
+use \Google\Analytics\Data\V1beta\FilterExpression;
+use \Google\Analytics\Data\V1beta\Filter;
+use \Google\Analytics\Data\V1beta\Filter\StringFilter;
+use \Google\Analytics\Data\V1beta\Filter\StringFilter\MatchType;
+use \Google\Analytics\Data\V1beta\Metric;
+use \Google\ApiCore\ApiException;
+
 class Ga4RankingPlugin
 {
   public function __construct()
@@ -158,7 +168,7 @@ class Ga4RankingPlugin
     $credentials = json_decode($json, true);
 
     try {
-      $client = new \Google\Analytics\Data\V1beta\BetaAnalyticsDataClient([
+      $client = new BetaAnalyticsDataClient([
         'credentials' => $credentials,
       ]);
 
@@ -167,35 +177,35 @@ class Ga4RankingPlugin
         'property'   => 'properties/' . $property_id,
         'limit'      => 1000,
         'dateRanges' => [
-          new \Google\Analytics\Data\V1beta\DateRange([
+          new DateRange([
             'start_date' => '30daysAgo',
             'end_date' => 'yesterday',
           ]),
         ],
         'dimensions' => [
-          new \Google\Analytics\Data\V1beta\Dimension([
+          new Dimension([
             'name' => 'pagePath',
           ]),
         ],
         'dimensionFilter' =>
-        !empty($dimension_filter_dir) ? new \Google\Analytics\Data\V1beta\FilterExpression([
-          'filter' => new \Google\Analytics\Data\V1beta\Filter([
+        !empty($dimension_filter_dir) ? new FilterExpression([
+          'filter' => new Filter([
             'field_name' => 'pagePath',
-            'string_filter' => new \Google\Analytics\Data\V1beta\Filter\StringFilter([
-              'match_type' => \Google\Analytics\Data\V1beta\Filter\StringFilter\MatchType::PARTIAL_REGEXP,
+            'string_filter' => new StringFilter([
+              'match_type' => MatchType::PARTIAL_REGEXP,
               'value' => $dimension_filter_dir . '[^\?]+'
             ]),
           ]),
         ]) : [],
         'metrics' => [
-          new \Google\Analytics\Data\V1beta\Metric([
+          new Metric([
             'name' => 'screenPageViews',
           ]),
         ],
       ]);
     }
     //例外処理
-    catch (\Google\ApiCore\ApiException $e) {
+    catch (ApiException $e) {
       return $rank_data;
     } finally {
       if (empty($response)) {
