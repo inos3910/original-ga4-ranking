@@ -10,7 +10,7 @@
  * Version: 1.0
  */
 
-namespace Original\Ga4\Ranking;
+namespace Sharesl\Original\Ga4\Ranking;
 
 class Ga4RankingPlugin
 {
@@ -50,6 +50,14 @@ class Ga4RankingPlugin
     register_setting('ga4-ranking-settings-group', 'ga4_ranking_dimension_filter');
   }
 
+  // 特定のprefixが付いたTransient API Cacheのクリア
+  private function delete_transient_prefix($prefix)
+  {
+    global $wpdb;
+    $db_prefix = $wpdb->prefix;
+    $wpdb->query("delete from `{$db_prefix}options` where `option_name` like '%_transient_{$prefix}_%'");
+  }
+
   //設定画面のソース
   public function setting_page_html()
   {
@@ -58,7 +66,8 @@ class Ga4RankingPlugin
     <h1>人気記事（GA4）設定</h1>
     <?php
     if ($is_clear_cache == 1) {
-      delete_transient('my_ga4_ranking_data');
+      $cache_prefix = 'original_ga4_ranking_data_';
+      $this->delete_transient_prefix($cache_prefix);
     ?>
       <div class='updated notice notice-success'>
         <p>キャッシュをクリアしました</p>
@@ -156,7 +165,7 @@ class Ga4RankingPlugin
       // API取得処理
       $response = $client->runReport([
         'property'   => 'properties/' . $property_id,
-        'limit'      => $limit,
+        'limit'      => 1000,
         'dateRanges' => [
           new \Google\Analytics\Data\V1beta\DateRange([
             'start_date' => '30daysAgo',
@@ -205,8 +214,12 @@ class Ga4RankingPlugin
         }
 
         $page_path   = $dimension_values[0]->getValue();
-        $pv          = $metric_values[0]->getValue();
         $post_id     = url_to_postid($page_path);
+        if (empty($post_id)) {
+          continue;
+        }
+
+        $pv          = $metric_values[0]->getValue();
         $url         = get_permalink($post_id);
 
         $rank_data[] = [
@@ -215,6 +228,11 @@ class Ga4RankingPlugin
           'post_id'   => $post_id,
           'url'       => $url
         ];
+
+        --$limit;
+        if ($limit < 1) {
+          break;
+        }
       }
 
       set_transient($transient_name, $rank_data, 12 * HOUR_IN_SECONDS);
