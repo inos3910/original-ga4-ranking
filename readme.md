@@ -43,10 +43,10 @@ PHP7 で動かしたい場合は composer.json で php のバージョンを指�
 
 ```
 <?php
-use Original\Ga4\Ranking\Ga4RankingPlugin;
+use Sharesl\Original\Ga4\Ranking\Ga4RankingPlugin;
 
 
-if (!class_exists('Original\Ga4\Ranking\Ga4RankingPlugin')) {
+if (!class_exists('Sharesl\Original\Ga4\Ranking\Ga4RankingPlugin')) {
   return;
 }
 
