@@ -62,6 +62,68 @@ class Ga4RankingPlugin
     register_setting('ga4-ranking-settings-group', 'ga4_ranking_credentials');
     register_setting('ga4-ranking-settings-group', 'ga4_ranking_property_id');
     register_setting('ga4-ranking-settings-group', 'ga4_ranking_dimension_filter');
+
+    // セクションを追加
+    add_settings_section(
+      'ga4_ranking_section',
+      '',
+      [],
+      'ga4-ranking-settings-group'
+    );
+
+    add_settings_field(
+      'ga4_ranking_credentials',
+      'JSONキー',
+      [$this, 'render_credentials_field'],
+      'ga4-ranking-settings-group',
+      "ga4_ranking_section",
+      ['label_for' => 'ga4_ranking_credentials']
+    );
+
+    add_settings_field(
+      'ga4_ranking_property_id',
+      'GA4プロパティID',
+      [$this, 'render_property_id_field'],
+      'ga4-ranking-settings-group',
+      "ga4_ranking_section",
+      ['label_for' => 'ga4_ranking_property_id']
+    );
+
+    add_settings_field(
+      'ga4_ranking_dimension_filter',
+      'URLフィルター',
+      [$this, 'render_url_filter_field'],
+      'ga4-ranking-settings-group',
+      "ga4_ranking_section",
+      ['label_for' => 'ga4_ranking_dimension_filter']
+    );
+  }
+
+  public function render_credentials_field()
+  { ?>
+    <p>
+      <textarea class="large-text code" id="ga4_ranking_credentials" name="ga4_ranking_credentials" cols="160" rows="7"><?php echo esc_attr(get_option('ga4_ranking_credentials')); ?></textarea>
+    </p>
+    <p class="description">GCP→サービスアカウントから取得</p>
+  <?php
+  }
+
+  public function render_property_id_field()
+  { ?>
+    <p>
+      <input class="regular-text code" type="text" id="ga4_ranking_property_id" name="ga4_ranking_property_id" value="<?php echo esc_attr(get_option('ga4_ranking_property_id')) ?>">
+    </p>
+    <p class="description">記事を取得したいGA4プロパティのID</p>
+  <?php
+  }
+
+  public function render_url_filter_field()
+  { ?>
+    <p>
+      <input class="regular-text code" type="text" id="ga4_ranking_dimension_filter" name="ga4_ranking_dimension_filter" value="<?php echo esc_attr(get_option('ga4_ranking_dimension_filter')) ?>">
+    </p>
+    <p class="description">/blog/・/article/ など記事を取得したいディレクトリを絞り込む。</p>
+  <?php
   }
 
   // 特定のprefixが付いたTransient API Cacheのクリア
@@ -77,7 +139,7 @@ class Ga4RankingPlugin
   {
     //キャッシュクリア設定
     $is_clear_cache = filter_input(INPUT_POST, 'clear_ga4_ranking_cache', FILTER_SANITIZE_NUMBER_INT);
-?>
+  ?>
     <div class="wrap">
       <h1>人気記事（GA4）設定</h1>
       <?php
@@ -95,35 +157,6 @@ class Ga4RankingPlugin
         <form method="post" action="options.php">
           <?php settings_fields('ga4-ranking-settings-group'); ?>
           <?php do_settings_sections('ga4-ranking-settings-group'); ?>
-          <table class="form-table">
-            <tr>
-              <th scope="row">JSONキー</th>
-              <td>
-                <p>
-                  <textarea class="large-text code" name="ga4_ranking_credentials" cols="160" rows="7"><?php echo esc_attr(get_option('ga4_ranking_credentials')); ?></textarea>
-                </p>
-                <p class="description">GCP→サービスアカウントから取得</p>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">GA4プロパティID</th>
-              <td>
-                <p>
-                  <input class="regular-text code" type="text" name="ga4_ranking_property_id" value="<?php echo esc_attr(get_option('ga4_ranking_property_id')) ?>">
-                </p>
-                <p class="description">記事を取得したいGA4プロパティのID</p>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">URLフィルター</th>
-              <td>
-                <p>
-                  <input class="regular-text code" type="text" name="ga4_ranking_dimension_filter" value="<?php echo esc_attr(get_option('ga4_ranking_dimension_filter')) ?>">
-                </p>
-                <p class="description">/blog/・/article/ など記事を取得したいディレクトリを絞り込む。</p>
-              </td>
-            </tr>
-          </table>
           <?php submit_button(); ?>
         </form>
         <hr>
