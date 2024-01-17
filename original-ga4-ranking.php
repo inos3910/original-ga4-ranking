@@ -40,6 +40,16 @@ class Ga4RankingPlugin
   {
     add_action('admin_menu', [$this, 'add_menu']);
     add_action('admin_init', [$this, 'register_settings']);
+    add_action('transition_post_status', [$this, 'transition_post_status'], 10, 3);
+  }
+
+  public function transition_post_status($new_status, $old_status, $post)
+  {
+    $statuses = ['private', 'trash', 'draft'];
+    if (in_array($new_status, $statuses, true)) {
+      $cache_prefix = 'original_ga4_ranking_data_';
+      $this->delete_transient_prefix($cache_prefix);
+    }
   }
 
   //GA4メニュー追加
