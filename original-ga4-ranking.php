@@ -156,12 +156,9 @@ class Ga4RankingPlugin
       if ($is_clear_cache == 1) {
         $cache_prefix = 'original_ga4_ranking_data_';
         $this->delete_transient_prefix($cache_prefix);
-      ?>
-        <div class='updated notice notice-success'>
-          <p>キャッシュをクリアしました</p>
-        </div>
-      <?php
+        add_settings_error('ga4_ranking_notice', 'ga4_ranking_notice', 'キャッシュをクリアしました', 'success');
       }
+      settings_errors();
       ?>
       <div class="admin_optional">
         <form method="post" action="options.php">
